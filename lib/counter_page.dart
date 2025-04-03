@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'api.dart';
+import 'firebase_service.dart'; // Import Firestore service
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CounterPage extends StatefulWidget {
-  final String namespace;
-  final String keyName;
+  final String counterId;
+  final String counterName;
 
-  const CounterPage({super.key, required this.namespace, required this.keyName});
+  const CounterPage({super.key, required this.counterId, required this.counterName});
 
   @override
   State<CounterPage> createState() => _CounterPageState();
@@ -13,8 +14,10 @@ class CounterPage extends StatefulWidget {
 
 class _CounterPageState extends State<CounterPage> {
   int counterValue = 0;
-  final ApiService _apiService = ApiService();
+  bool isLoading = false; // Track loading state
+  final FirebaseService _firebaseService = FirebaseService();
   final TextEditingController _updateController = TextEditingController();
+  final String? userId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
   void initState() {
@@ -23,29 +26,40 @@ class _CounterPageState extends State<CounterPage> {
   }
 
   Future<void> _loadCounter() async {
-    int? value = await _apiService.getCounterValue(context, widget.namespace, widget.keyName);
-    if (value != null) {
-      setState(() {
-        counterValue = value;
-      });
+    if (userId != null) {
+      setState(() => isLoading = true);
+      int? value = await _firebaseService.getCounterValue(userId!, widget.counterId);
+      if (value != null) {
+        setState(() {
+          counterValue = value;
+          isLoading = false;
+        });
+      }
     }
   }
 
   Future<void> _incrementCounter() async {
-    await _apiService.incrementCounter(context, widget.namespace, widget.keyName);
-    _loadCounter();
+    if (userId != null) {
+      setState(() => isLoading = true);
+      await _firebaseService.incrementCounter(userId!, widget.counterId);
+      await _loadCounter();
+    }
   }
 
   Future<void> _decrementCounter() async {
-    await _apiService.decrementCounter(context, widget.namespace, widget.keyName);
-    _loadCounter();
+    if (userId != null) {
+      setState(() => isLoading = true);
+      await _firebaseService.decrementCounter(userId!, widget.counterId);
+      await _loadCounter();
+    }
   }
 
   Future<void> _updateCounter() async {
     int? newValue = int.tryParse(_updateController.text);
-    if (newValue != null) {
-      await _apiService.updateCounter(context, widget.namespace, widget.keyName, newValue);
-      _loadCounter();
+    if (newValue != null && userId != null) {
+      setState(() => isLoading = true);
+      await _firebaseService.updateCounter(userId!, widget.counterId, newValue);
+      await _loadCounter();
       _updateController.clear();
     }
   }
@@ -54,42 +68,44 @@ class _CounterPageState extends State<CounterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.namespace} / ${widget.keyName}"),
-        backgroundColor: const Color.fromARGB(255, 216, 92, 52)
+        title: Text(widget.counterName),
+        backgroundColor: Colors.orange,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Counter Value", style: TextStyle(fontSize: 24)),
-            SizedBox(height: 20),
-            Text("$counterValue", style: TextStyle(fontSize: 40)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _decrementCounter,
-              child: Text("Decrement"),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _incrementCounter,
-              child: Text("Increment"),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
-                controller: _updateController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: "New Counter Value"),
+        child: isLoading
+            ? const CircularProgressIndicator() // Show loading spinner
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Counter Value", style: TextStyle(fontSize: 24)),
+                  const SizedBox(height: 20),
+                  Text("$counterValue", style: const TextStyle(fontSize: 40)),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _decrementCounter,
+                    child: const Text("Decrement"),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _incrementCounter,
+                    child: const Text("Increment"),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      controller: _updateController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: "New Counter Value"),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _updateCounter,
+                    child: const Text("Update"),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _updateCounter,
-              child: Text("Update"),
-            ),
-          ],
-        ),
       ),
     );
   }
