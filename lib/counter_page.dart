@@ -73,54 +73,78 @@ class _CounterPageState extends State<CounterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.counterName),
-        backgroundColor: const Color.fromARGB(255, 216, 92, 52),
-      ),
-      body: Center(
-        child:
-            isLoading
-                ? const CircularProgressIndicator() // Show loading spinner
-                : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Counter Value", style: TextStyle(fontSize: 24)),
-                    const SizedBox(height: 20),
-                    Text("$counterValue", style: const TextStyle(fontSize: 40)),
-                    const SizedBox(height: 20),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: _decrementCounter,
-                          child: const Text("Decrement"),
-                        ),
-                        ElevatedButton(
-                      onPressed: _incrementCounter,
-                      child: const Text("Increment"),
+return Scaffold(
+  appBar: AppBar(
+    title: Text(widget.counterName),
+    backgroundColor: const Color.fromARGB(255, 216, 92, 52),
+  ),
+  body: Center(
+    child: isLoading
+        ? const CircularProgressIndicator() 
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Counter Value",
+                style: TextStyle(fontSize: 24),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "$counterValue",
+                style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              
+              // Counter Control Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _decrementCounter,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     ),
-                      ],
+                    child: const Text("Decrement"),
+                  ),
+                  ElevatedButton(
+                    onPressed: _incrementCounter,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     ),
-                    
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: TextField(
-                        controller: _updateController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: "New Counter Value",
-                        ),
-                      ),
+                    child: const Text("Increment"),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  controller: _updateController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "New Counter Value",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: _updateCounter,
-                      child: const Text("Update"),
-                    ),
-                  ],
+                  ),
                 ),
-      ),
-    );
+              ),
+
+              const SizedBox(height: 10),
+
+              ElevatedButton(
+                onPressed: _updateCounter,
+                style: ElevatedButton.styleFrom(
+                  
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                child: const Text("Update"),
+              ),
+            ],
+          ),
+  ),
+);
+
   }
 }
