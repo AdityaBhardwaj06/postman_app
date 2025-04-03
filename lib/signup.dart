@@ -7,19 +7,28 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> signUp() async {
     if (formKey.currentState!.validate()) {
       try {
-        await _auth.createUserWithEmailAndPassword(
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
+
+        User? user = userCredential.user;
+        if (user != null) {
+          await user.updateDisplayName(nameController.text.trim());
+          await user.reload();
+        }
+
         print("Signup Successful");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Account created successfully!")),
@@ -37,7 +46,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign Up')),
+      appBar: AppBar(title: Text('Sign Up'), backgroundColor:const Color.fromARGB(255, 216, 92, 52) ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -45,6 +54,16 @@ class _SignupPageState extends State<SignupPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
+              ),
               TextFormField(
                 controller: emailController,
                 decoration: InputDecoration(labelText: 'Email'),

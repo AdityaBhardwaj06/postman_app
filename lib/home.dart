@@ -13,8 +13,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final User? user = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final User? user = FirebaseAuth.instance.currentUser;
 
   Future<void> logout() async {
     try {
@@ -27,15 +27,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _addCounter() async {
     String counterName = "";
+    int initialValue = 0;
 
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text("Add New Counter"),
-          content: TextField(
-            decoration: const InputDecoration(labelText: "Counter Name"),
-            onChanged: (value) => counterName = value,
+          content: Column(
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: "Counter Name"),
+                onChanged: (value) => counterName = value,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: "Initial value"),
+                onChanged: (value) => initialValue = int.parse(value),
+                keyboardType: TextInputType.number
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -49,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       .collection("users")
                       .doc(user?.uid)
                       .collection("counters")
-                      .add({"name": counterName, "value": 0});
+                      .add({"name": counterName, "value": initialValue});
                   Navigator.pop(context);
                 }
               },
@@ -74,7 +84,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Welcome, ${user?.email ?? 'User'}"),
+        backgroundColor: const Color.fromARGB(255, 216, 92, 52),
+        title: Text("Postman Counter App"),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -83,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
               if (context.mounted) {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) =>  LoginPage()),
+                  MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               }
             },
@@ -106,11 +117,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: StreamBuilder(
-                stream: _firestore
-                    .collection("users")
-                    .doc(user?.uid)
-                    .collection("counters")
-                    .snapshots(),
+                stream:
+                    _firestore
+                        .collection("users")
+                        .doc(user?.uid)
+                        .collection("counters")
+                        .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -120,26 +132,31 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
 
                   return ListView(
-                    children: snapshot.data!.docs.map((doc) {
-                      Map<String, dynamic> data =
-                          doc.data() as Map<String, dynamic>;
-                      return ListTile(
-                        leading: const Icon(Icons.countertops),
-                        title: Text(data["name"] ?? "Unnamed Counter"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CounterPage(counterId: doc.id, counterName: data["name"]!),
+                    children:
+                        snapshot.data!.docs.map((doc) {
+                          Map<String, dynamic> data =
+                              doc.data() as Map<String, dynamic>;
+                          return ListTile(
+                            leading: const Icon(Icons.contact_page_outlined),
+                            title: Text(data["name"] ?? "Unnamed Counter"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => CounterPage(
+                                        counterId: doc.id,
+                                        counterName: data["name"]!,
+                                      ),
+                                ),
+                              );
+                            },
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteCounter(doc.id),
                             ),
                           );
-                        },
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteCounter(doc.id),
-                        ),
-                      );
-                    }).toList(),
+                        }).toList(),
                   );
                 },
               ),
@@ -154,10 +171,21 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: const Center(
-        child: Text(
-          "Select a counter from the drawer",
-          style: TextStyle(fontSize: 20),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Welcome, ${user?.displayName ?? 'User'}",
+              style: TextStyle(fontSize: 20),
+            ),
+            Text("${user?.email ?? 'User'}", style: TextStyle(fontSize: 20)),
+            SizedBox(height: 30),
+            Text(
+              "Select a counter from the drawer",
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
         ),
       ),
     );

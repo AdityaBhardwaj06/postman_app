@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
         
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 216, 92, 52),
+          
         ),
       ),
       routerConfig: AppRouter().router,

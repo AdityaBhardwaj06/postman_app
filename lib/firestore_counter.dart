@@ -7,19 +7,43 @@ class FirestoreCounterService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Create a Counter
-  Future<void> createCounter(BuildContext context, String counterName, int initialValue) async {
+  Future<void> createCounter(
+    BuildContext context,
+    String counterName,
+    int initialValue,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    final counterRef = _firestore.collection('users').doc(user.uid).collection('counters').doc();
-    
+    final counterRef =
+        _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('counters')
+            .doc();
+
     await counterRef.set({
       'name': counterName,
       'value': initialValue,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
-    _showSuccessSnackBar(context, "Counter created successfully!");
+    showSuccessSnackBar(context, "Counter created successfully!");
+  }
+
+  Future<int?> getCounterValue(String userId, String counterId) async {
+    DocumentSnapshot doc =
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('counters')
+            .doc(counterId)
+            .get();
+
+    if (doc.exists && doc.data() != null) {
+      return (doc.data() as Map<String, dynamic>)['value'] ?? 0;
+    }
+    return 0;
   }
 
   // Get Stream of Counters
@@ -27,55 +51,98 @@ class FirestoreCounterService {
     final user = _auth.currentUser;
     if (user == null) return Stream.empty();
 
-    return _firestore.collection('users').doc(user.uid).collection('counters').orderBy('updatedAt', descending: true).snapshots();
+    return _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('counters')
+        .orderBy('updatedAt', descending: true)
+        .snapshots();
   }
 
   // Increment Counter
-  Future<void> incrementCounter(BuildContext context, String counterId, int currentValue) async {
+  Future<void> incrementCounter(
+    BuildContext context,
+    String userId,
+    String counterId,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    await _firestore.collection('users').doc(user.uid).collection('counters').doc(counterId).update({
-      'value': currentValue + 1,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-    _showSuccessSnackBar(context, "Counter incremented!");
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('counters')
+        .doc(counterId)
+        .update({
+          'value': FieldValue.increment(1),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+    showSuccessSnackBar(context, "Counter incremented!");
   }
 
   // Decrement Counter
-  Future<void> decrementCounter(BuildContext context, String counterId, int currentValue) async {
+  Future<void> decrementCounter(
+    BuildContext context,
+    String userId,
+    String counterId,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    await _firestore.collection('users').doc(user.uid).collection('counters').doc(counterId).update({
-      'value': currentValue - 1,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-    _showSuccessSnackBar(context, "Counter decremented!");
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('counters')
+        .doc(counterId)
+        .update({
+          'value': FieldValue.increment(-1),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+    showSuccessSnackBar(context, "Counter decremented!");
   }
 
   // Update Counter to a Specific Value
-  Future<void> updateCounter(BuildContext context, String counterId, int newValue) async {
+  Future<void> updateCounter(
+    BuildContext context,
+    String userId,
+    String counterId,
+    int newValue,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    await _firestore.collection('users').doc(user.uid).collection('counters').doc(counterId).update({
-      'value': newValue,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-    _showSuccessSnackBar(context, "Counter updated!");
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('counters')
+        .doc(counterId)
+        .update({'value': newValue, 'updatedAt': FieldValue.serverTimestamp()});
+    showSuccessSnackBar(context, "Counter updated!");
   }
 
   // Delete Counter
-  Future<void> deleteCounter(BuildContext context, String counterId) async {
+  Future<void> deleteCounter(
+    BuildContext context,
+    String userId,
+    String counterId,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    await _firestore.collection('users').doc(user.uid).collection('counters').doc(counterId).delete();
-    _showSuccessSnackBar(context, "Counter deleted!");
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('counters')
+        .doc(counterId)
+        .delete();
+    showSuccessSnackBar(context, "Counter deleted!");
   }
 
-  void _showSuccessSnackBar(BuildContext context, String message) {
+ 
+}
+
+ // Snack bar to show success
+  void showSuccessSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: TextStyle(color: Colors.white)),
@@ -84,7 +151,9 @@ class FirestoreCounterService {
       ),
     );
   }
-  void _showFailureSnackBar(BuildContext context, String message) {
+
+  // Snack bar to show failure
+  void showFailureSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: TextStyle(color: Colors.white)),
@@ -93,4 +162,3 @@ class FirestoreCounterService {
       ),
     );
   }
-}
