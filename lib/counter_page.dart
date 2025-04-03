@@ -89,15 +89,19 @@ class _CounterPageState extends State<CounterPage> {
                     const SizedBox(height: 20),
                     Text("$counterValue", style: const TextStyle(fontSize: 40)),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _decrementCounter,
-                      child: const Text("Decrement"),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _decrementCounter,
+                          child: const Text("Decrement"),
+                        ),
+                        ElevatedButton(
                       onPressed: _incrementCounter,
                       child: const Text("Increment"),
                     ),
+                      ],
+                    ),
+                    
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),

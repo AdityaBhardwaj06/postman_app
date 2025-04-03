@@ -56,7 +56,8 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               TextFormField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: 'Name',border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),)),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your name';
@@ -64,9 +65,11 @@ class _SignupPageState extends State<SignupPage> {
                   return null;
                 },
               ),
+              SizedBox(height: 10),
               TextFormField(
                 controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: 'Email',border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),)),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
@@ -79,7 +82,8 @@ class _SignupPageState extends State<SignupPage> {
               SizedBox(height: 10),
               TextFormField(
                 controller: passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: 'Password',border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),)),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -93,7 +97,8 @@ class _SignupPageState extends State<SignupPage> {
               SizedBox(height: 10),
               TextFormField(
                 controller: confirmPasswordController,
-                decoration: InputDecoration(labelText: 'Confirm Password'),
+                decoration: InputDecoration(labelText: 'Confirm Password',border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),)),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {

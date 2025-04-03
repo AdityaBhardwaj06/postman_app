@@ -25,7 +25,9 @@ class _LoginPageState extends State<LoginPage> {
       } catch (e) {
         print("Error: $e");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login failed. Please check your credentials.")),
+          SnackBar(
+            content: Text("Login failed. Please check your credentials."),
+          ),
         );
       }
     }
@@ -35,7 +37,8 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) return; // User canceled sign-in
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -44,16 +47,19 @@ class _LoginPageState extends State<LoginPage> {
       print("Google Sign-In Successful");
     } catch (e) {
       print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Google Sign-In failed.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Google Sign-In failed.")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login'),backgroundColor:const Color.fromARGB(255, 216, 92, 52) ), 
+      appBar: AppBar(
+        title: Text('Login'),
+        backgroundColor: const Color.fromARGB(255, 216, 92, 52),
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -63,7 +69,12 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               TextFormField(
                 controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
@@ -76,7 +87,8 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 10),
               TextFormField(
                 controller: passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: 'Password',border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),)),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -113,4 +125,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

@@ -34,18 +34,21 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Add New Counter"),
-          content: Column(
-            children: [
-              TextField(
-                decoration: const InputDecoration(labelText: "Counter Name"),
-                onChanged: (value) => counterName = value,
-              ),
-              TextField(
-                decoration: const InputDecoration(labelText: "Initial value"),
-                onChanged: (value) => initialValue = int.parse(value),
-                keyboardType: TextInputType.number
-              ),
-            ],
+          content: Container(
+            height: 150,
+            child: Column(
+              children: [
+                TextField(
+                  decoration: const InputDecoration(labelText: "Counter Name"),
+                  onChanged: (value) => counterName = value,
+                ),
+                TextField(
+                  decoration: const InputDecoration(labelText: "Initial value"),
+                  onChanged: (value) => initialValue = int.parse(value),
+                  keyboardType: TextInputType.number
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -179,10 +182,15 @@ class _MyHomePageState extends State<MyHomePage> {
               "Welcome, ${user?.displayName ?? 'User'}",
               style: TextStyle(fontSize: 20),
             ),
-            Text("${user?.email ?? 'User'}", style: TextStyle(fontSize: 20)),
+            Text(user?.email ?? 'User', style: TextStyle(fontSize: 20)),
             SizedBox(height: 30),
             Text(
               "Select a counter from the drawer",
+              style: TextStyle(fontSize: 20),
+            ),
+            SizedBox(height: 30),
+            Text(
+              "Press button on right to Logout",
               style: TextStyle(fontSize: 20),
             ),
           ],
